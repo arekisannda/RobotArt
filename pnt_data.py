@@ -7,7 +7,7 @@ from collections import defaultdict
 #data values
 x_max, x_min, x_inc = 90, -90, 1
 y_max, y_min, y_inc = 90, -90, 1
-z_max, z_min, z_inc = 720, 0, 1
+z_max, z_min, z_inc = 3600, -3600, 1
 
 #joint length
 l1 = 160
