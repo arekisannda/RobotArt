@@ -83,100 +83,97 @@ for polg in polg_list:
                 for crd in (pts.split(",") for pts in points.split())]
         element_list.append(polg_path)
 
+def getXY(nums):
+    val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
+    x_val = val.group(0)
+    nums = nums[len(x_val):].lstrip()
+    val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
+    y_val = val.group(0)
+    nums = nums[len(y_val):].lstrip()
+    return (x_val, y_val, nums)
+
+
 for path in path_list:
+
     print ("path")
     path_string = path.getAttribute('d')
-    print (path_string)
-
+    
     split_letters = re.findall('[A-Z|a-z][^A-Z|a-z]*', path_string)
     path_elements = []
-    path_part = []
     for chunk in split_letters:
         char = chunk[0]
-        nums = chunk[1:].replace(',',' ')
-        nums = nums.lstrip()
-        nums = nums.rstrip()
+        nums = chunk[1:].replace(',', ' ').lstrip().rstrip()
+    
         if (char == 'm') or (char == 'M'):
-            print ("entered M")
-            if (path_part):
-                path_elements = path_elements + path_part
+            if (path_elements):
                 element_list.append(path_elements)
                 path_elements = []
-                path_part = []
             while (nums):
-                print (nums)
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                x_val = val.group(0)
-                nums = nums[len(x_val):]
-                nums = nums.lstrip()
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                y_val = val.group(0)
-                nums = nums[len(y_val):]
-                nums = nums.lstrip()
+                x_val, y_val, nums = getXY(nums)
                 if (not x_val) or (not y_val):
                     print ("Invalid Path")
-                    break;
+                    break
                 else:
                     x_val = int(float(x_val)) + x_offset
                     y_val = int(float(y_val)) + y_offset
-                    if (char == 'm'):
-                        if (path_part):
-                            x_val = x_val + path_part[-1][0]
-                            y_val = y_val + path_part[-1][1]
-                    path_part.append((x_val, y_val))
-        if (char == 'L') or (char == 'l'):
-            print ("entered L")
+                    if (char == 'm') and (path_elements):
+                        x_val = x_val + path_elements[-1][0]
+                        y_val = y_val + path_elements[-1][1]
+                    path_elements.append((x_val, y_val))
+        elif (char == 'l') or (char == 'L'):
             while (nums):
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                x_val = val.group(0)
-                nums = nums[len(x_val):]
-                nums = nums.lstrip()
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                y_val = val.group(0)
-                nums = nums[len(y_val):]
-                nums = nums.lstrip()
+                x_val, y_val, nums = getXY(nums)
                 if (not x_val) or (not y_val):
                     print ("Invalid Path")
-                    break;
+                    break
                 else:
                     x_val = int(float(x_val)) + x_offset
                     y_val = int(float(y_val)) + y_offset
-                    if (char == 'l'):
-                        if (path_part):
-                            x_val = x_val + path_part[-1][0]
-                            y_val = y_val + path_part[-1][1]
-                    path_part.append((x_val, y_val))
-        if (char == 'h') or (char == 'H') or (char == 'v') or (char == 'V'):
-            print ("entered singles")
-            x_val, y_val = 0, 0
-            if (char == 'h') or (char == 'H'):
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                x_val = val.group(0)
-                nums = nums[len(x_val):]
-                nums = nums.lstrip()
-            if (char == 'v') or (char == 'V'):
-                val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
-                y_val = val.group(0)
-                nums = nums[len(y_val):]
-                nums = nums.lstrip()
-                if (not x_val) or (not y_val):
-                    print ("Invalid Path")
-                    break;
-                else:
-                    x_val = int(float(x_val)) + x_offset
-                    y_val = int(float(y_val)) + y_offset
-                    if (char == 'h') or (char == 'v'):
-                        if (path_part):
-                                x_val = x_val + path_part[-1][0]
-                                y_val = y_val + path_part[-1][1]
-                    path_part.append((x_val, y_val))
-        if ((char == 'z') or (char == 'Z')) and (path_part):
-            print ("entered Z")
-            path_part.append(path_part[0])
-            path_elements = path_elements + path_part
-            element_list.append(path_elements)
-            path_elements = []
-            path_part = []
+                    if (char == 'l') and (path_elements):
+                        x_val = x_val + path_elements[-1][0]
+                        y_val = y_val + path_elements[-1][1]
+                    path_elements.append((x_val, y_val))
+        elif (char == 'h') or (char == 'H'):
+            val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
+            x_val = val.group(0)
+            nums = nums[len(x_val):].lstrip()
+            y_val = 0
+            if (not x_val):
+                print ("Invalid Path")
+            else:
+                x_val = int(float(x_val)) + x_offset
+                y_val = y_val + y_offset
+                if (path_elements):
+                    if (char == 'h'):
+                        x_val = x_val + path_elements[-1][0]
+                    y_val = path_elements[-1][1] + y_offset
+                path_elements.append((x_val, y_val))
+        elif (char == 'v') or (char == 'V'):
+            val = re.search("(-?[0-9]*(\.[0-9][0-9]*)?)", nums)
+            y_val = val.group(0)
+            nums = nums[len(y_val):].lstrip()
+            x_val = 0
+            if (not y_val):
+                print ("Invalid Path")
+            else:
+                x_val = x_val + x_offset
+                y_val = int(float(y_val)) + y_offset
+                if (path_elements):
+                    if (char == 'v'):
+                        y_val = y_val + path_elements[-1][1]
+                    x_val = path_elements[-1][0] + x_offset
+                path_elements.append((x_val, y_val))
+        elif (char == 'z') or (char == 'Z'):
+            print ("z end")
+            if (path_elements):
+                path_elements.append(path_elements[0])
+                element_list.append(path_elements)
+                path_elements = []
+            else:
+                print ("Invalid Path")
+    if (path_elements):
+        print ("free end")
+        element_list.append(path_elements)
 
 for i in element_list:
     print (i)
