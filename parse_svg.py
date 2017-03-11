@@ -115,7 +115,7 @@ for path in path_list:
                 else:
                     x_val = int(float(x_val))
                     y_val = int(float(y_val))
-                    if (not path_elements):
+                    if (not path_elements) or (char == 'M'):
                         x_val = x_val + x_offset
                         y_val = y_val + y_offset
                     if (char == 'm') and (path_elements):
@@ -131,7 +131,7 @@ for path in path_list:
                 else:
                     x_val = int(float(x_val))
                     y_val = int(float(y_val))
-                    if (not path_elements):
+                    if (not path_elements) or (char == 'L'):
                         x_val = x_val + x_offset
                         y_val = y_val + y_offset
                     if (char == 'l') and (path_elements):
