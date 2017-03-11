@@ -1,17 +1,18 @@
 from xml.dom import minidom
 import re
 import sys
+import fileinput
 
 ###############################################################################
-x_offset = 0
-y_offset = 0
+x_offset = -230
+y_offset = -230
 ###############################################################################
 
-if (len(sys.argv) != 2):
-    print ("Usage python parse_svg.py <filename>")
+if (len(sys.argv) != 3):
+    print ("Usage python parse_svg.py <filename> <output file>")
     exit()
 
-doc = minidom.parse(sys.argv[-1])
+doc = minidom.parse(sys.argv[1])
 path_list = doc.getElementsByTagName('path')
 rect_list = doc.getElementsByTagName('rect')
 line_list = doc.getElementsByTagName('line')
@@ -94,8 +95,6 @@ def getXY(nums):
 
 
 for path in path_list:
-
-    print ("path")
     path_string = path.getAttribute('d')
     
     split_letters = re.findall('[A-Z|a-z][^A-Z|a-z]*', path_string)
@@ -114,8 +113,11 @@ for path in path_list:
                     print ("Invalid Path")
                     break
                 else:
-                    x_val = int(float(x_val)) + x_offset
-                    y_val = int(float(y_val)) + y_offset
+                    x_val = int(float(x_val))
+                    y_val = int(float(y_val))
+                    if (not path_elements):
+                        x_val = x_val + x_offset
+                        y_val = y_val + y_offset
                     if (char == 'm') and (path_elements):
                         x_val = x_val + path_elements[-1][0]
                         y_val = y_val + path_elements[-1][1]
@@ -127,8 +129,11 @@ for path in path_list:
                     print ("Invalid Path")
                     break
                 else:
-                    x_val = int(float(x_val)) + x_offset
-                    y_val = int(float(y_val)) + y_offset
+                    x_val = int(float(x_val))
+                    y_val = int(float(y_val))
+                    if (not path_elements):
+                        x_val = x_val + x_offset
+                        y_val = y_val + y_offset
                     if (char == 'l') and (path_elements):
                         x_val = x_val + path_elements[-1][0]
                         y_val = y_val + path_elements[-1][1]
@@ -141,8 +146,11 @@ for path in path_list:
             if (not x_val):
                 print ("Invalid Path")
             else:
-                x_val = int(float(x_val)) + x_offset
-                y_val = y_val + y_offset
+                x_val = int(float(x_val))
+                y_val = y_val
+                if (not path_elements):
+                    x_val = x_val + x_offset
+                    y_val = y_val + y_offset
                 if (path_elements):
                     if (char == 'h'):
                         x_val = x_val + path_elements[-1][0]
@@ -156,15 +164,17 @@ for path in path_list:
             if (not y_val):
                 print ("Invalid Path")
             else:
-                x_val = x_val + x_offset
-                y_val = int(float(y_val)) + y_offset
+                x_val = x_val
+                y_val = int(float(y_val))
+                if (not path_elements):
+                    x_val = x_val + x_offset
+                    y_val = y_val + y_offset
                 if (path_elements):
                     if (char == 'v'):
                         y_val = y_val + path_elements[-1][1]
                     x_val = path_elements[-1][0] + x_offset
                 path_elements.append((x_val, y_val))
         elif (char == 'z') or (char == 'Z'):
-            print ("z end")
             if (path_elements):
                 path_elements.append(path_elements[0])
                 element_list.append(path_elements)
@@ -172,9 +182,12 @@ for path in path_list:
             else:
                 print ("Invalid Path")
     if (path_elements):
-        print ("free end")
         element_list.append(path_elements)
-
-for i in element_list:
-    print (i)
 doc.unlink()
+
+with open(sys.argv[2], 'w') as outf:
+    for element in element_list:
+        outf.write("G0 X%d Y%d P0\n" % (element[0]))
+        element = element[1:]
+        for crd in element:
+            outf.write("G1 X%d Y%d P1\n" % (crd))
