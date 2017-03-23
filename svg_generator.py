@@ -191,10 +191,12 @@ def main():
     global save_path
     parser = build_parser()
     args = parser.parse_args()
-
     if (len(sys.argv) > 1) and (args.path) and (args.option):
         save_path = args.path[0] if (len(args.path) > 0) else None
         option_type = args.option[0] if (len(args.option) > 0) else None
+
+        if (not os.path.exists(save_path)):
+            os.mkdir(save_path)
         count = args.count if (args.count > 0) else 1000
         if (save_path[-1] != '/'):
             save_path += '/'
