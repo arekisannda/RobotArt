@@ -4,7 +4,6 @@ import sys
 import os
 import random
 from math import *
-import svgwrite
 import numpy as np
 from argparse import ArgumentParser
 import argparse
